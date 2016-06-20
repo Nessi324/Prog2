@@ -15,7 +15,7 @@ import java.util.TreeSet;
  *
  * @author beuth
  */
-public class TerminVerwaltung {
+public class TerminVerwaltung implements Serializable{
 
     private TreeMap<LocalDate, ArrayList<Termin>> termineDate;
     private HashMap<String, Termin> termineId;

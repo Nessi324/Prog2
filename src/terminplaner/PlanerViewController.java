@@ -4,10 +4,7 @@ import adressbuch.Adressbuch;
 import Exceptions.UngueltigerSchluesselException;
 import adressbuch.AdressbuchViewController;
 import adressbuch.ViewHelper;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
@@ -18,15 +15,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
+import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 
 /**
  * FXML Controller class fuer die Terminplaner-Hauptansicht.
@@ -59,21 +50,21 @@ public class PlanerViewController implements Initializable {
         } catch (UngueltigerSchluesselException ex) {
             System.out.println(ex.toString());
         }
-        date.setValue(LocalDate.now());
-        showTermine();
         date.setOnAction((e) -> showTermine());
+        date.setValue(LocalDate.now());
         addButton.setOnAction((e) -> addTermin());
-        configureMenue();
         configureList();
+        configureMenue();
+        showTermine();
 
     }
 
     private void showTermine() {
-        terminliste.getItems().clear();
         if (getSelectedDate() != null) {
+            terminliste.getItems().clear();
             LocalDate datum = getSelectedDate();
             List<Termin> liste = planer.getTermineTag(datum);
-            if (liste != null) {
+            if (liste != null && liste.size() > 0) {
                 terminData.addAll(liste);
                 terminliste.setItems(terminData);
             }
@@ -101,25 +92,31 @@ public class PlanerViewController implements Initializable {
     }
 
     private void loadTermine() {
-        // planer.load(file);
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Lade gespeicherte Termine");
+            File file = fileChooser.showOpenDialog(null);
+            if (file != null) {
+                planer.load(file);
+            }
+            showTermine();
+        } catch (Exception ex) {
+            ViewHelper.showError("Datei konnte nicht gespeichert werden.");
+        }
     }
 
-    private void saveTermine(){
-        try {
-            Stage stage = new Stage();
-            stage.setTitle("Open New Directory");
-            DirectoryChooser fs = new DirectoryChooser();
-            File file = fs.showDialog(stage);
-            FileOutputStream fmf = new FileOutputStream(file.getPath()+"\\Termine.ser");
-            ObjectOutputStream os = new ObjectOutputStream(fmf);
-            Termin[] termine = planer.getAllTermine();
-            for(Termin x : termine){
-                os.writeObject(x);
+    private void saveTermine() {
+            FileChooser fs = new FileChooser();
+            fs.setTitle("Speicher Termine");
+            File file = fs.showSaveDialog(null);
+            if (file != null) {
+                try {
+                    planer.save(file);
+                } catch (IOException ex) {
+                    ViewHelper.showError("Datei konnte nicht gespeichert werden.");
+                }
             }
-            os.close();
-        } catch (IOException ex) {
-            Logger.getLogger(PlanerViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
     }
 
     private void editKontakte() {

@@ -2,7 +2,7 @@ package adressbuch;
 
 import java.io.Serializable;
 
-public class Kontakt implements Comparable<Kontakt> {
+public class Kontakt implements Comparable<Kontakt>, Serializable {
 
     private String name;
     private String telefon;
