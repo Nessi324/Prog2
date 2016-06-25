@@ -108,6 +108,7 @@ public class PlanerViewController implements Initializable {
 
     public void processTermin(Termin newtermin) throws TerminUeberschneidungException {
         planer.setTermin(newtermin);
+        showTermine();
     }
 
     private void saveTermine() {
@@ -137,7 +138,7 @@ public class PlanerViewController implements Initializable {
 
     private void editTermin() {
         Termin termin = terminliste.getSelectionModel().getSelectedItem();
-        if (planer.updateErlaubt(termin) && termin!=null) {
+        if (planer.updateErlaubt(termin)) {
             TerminViewController controller = new TerminViewController(termin, this);
             URL url = controller.getClass().getResource("terminView.fxml");
             ViewHelper.showView(controller, url);
@@ -147,7 +148,6 @@ public class PlanerViewController implements Initializable {
             URL url = controller.getClass().getResource("terminView.fxml");
             ViewHelper.showView(controller, url);
         }
-        showTermine();
     }
 
     public LocalDate getSelectedDate() {
