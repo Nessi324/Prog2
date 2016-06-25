@@ -1,5 +1,6 @@
 package terminplaner;
 
+import Exceptions.TerminUeberschneidungException;
 import adressbuch.Adressbuch;
 import Exceptions.UngueltigerSchluesselException;
 import adressbuch.AdressbuchViewController;
@@ -9,8 +10,6 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -18,6 +17,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class fuer die Terminplaner-Hauptansicht.
@@ -37,7 +37,7 @@ public class PlanerViewController implements Initializable {
 
     private Terminplaner planer;
     private Adressbuch adressen;
-    private ObservableList<Termin> terminData;
+    public ObservableList<Termin> terminData;
 
     /**
      * Initializes the controller class.
@@ -72,7 +72,9 @@ public class PlanerViewController implements Initializable {
     }
 
     private void addTermin() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        TerminViewController controller = new TerminViewController(null, this);
+        URL url = controller.getClass().getResource("terminView.fxml");
+        ViewHelper.showView(controller, url);
     }
 
     private void configureMenue() {
@@ -105,18 +107,24 @@ public class PlanerViewController implements Initializable {
         }
     }
 
+    public void processTermin(Termin newtermin) throws TerminUeberschneidungException {
+        planer.setTermin(newtermin);
+        showTermine();
+
+    }
+
     private void saveTermine() {
-            FileChooser fs = new FileChooser();
-            fs.setTitle("Speicher Termine");
-            File file = fs.showSaveDialog(null);
-            if (file != null) {
-                try {
-                    planer.save(file);
-                } catch (IOException ex) {
-                    ViewHelper.showError("Datei konnte nicht gespeichert werden.");
-                }
+        FileChooser fs = new FileChooser();
+        fs.setTitle("Speicher Termine");
+        File file = fs.showSaveDialog(null);
+        if (file != null) {
+            try {
+                planer.save(file);
+            } catch (IOException ex) {
+                ViewHelper.showError("Datei konnte nicht gespeichert werden.");
             }
-        
+        }
+
     }
 
     private void editKontakte() {
@@ -132,6 +140,12 @@ public class PlanerViewController implements Initializable {
 
     private void editTermin() {
         Termin termin = terminliste.getSelectionModel().getSelectedItem();
+        if (planer.updateErlaubt(termin)) {
+            TerminViewController controller = new TerminViewController(termin, this);
+            URL url = controller.getClass().getResource("terminView.fxml");
+            ViewHelper.showView(controller, url);
+        }
+
     }
 
     public LocalDate getSelectedDate() {
