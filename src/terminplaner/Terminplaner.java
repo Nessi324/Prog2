@@ -117,7 +117,7 @@ public class Terminplaner extends TerminVerwaltung {
     }
 
     private void setTestData() {
-        LocalDate d = LocalDate.of(2016, 06, 20);
+        LocalDate d = LocalDate.of(2016, 06, 25);
         Kontakt dave = new Kontakt("david", "08459 100000", "david@gmx.de");
         try {
             Termin t1 = new Termin("Besuch", d, LocalTime.of(9, 0), LocalTime.of(10, 0));

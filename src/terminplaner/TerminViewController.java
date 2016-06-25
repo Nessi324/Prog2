@@ -2,13 +2,10 @@ package terminplaner;
 
 import Exceptions.UngueltigerTerminException;
 import adressbuch.Kontakt;
-import adressbuch.ViewHelper;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -43,9 +40,10 @@ public class TerminViewController implements Initializable {
     Button cancel;
     @FXML
     Button save;
-
+   
     private Termin termin;
     private PlanerViewController controller;
+    private ObservableList<Kontakt> items;
 
     public TerminViewController(Termin termin, PlanerViewController view) {
         this.termin = termin;
@@ -57,16 +55,20 @@ public class TerminViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        ObservableList<Kontakt> items = FXCollections.observableArrayList();
+        items = FXCollections.observableArrayList();
         teilnehmerliste.setItems(items);
         cancel.setOnAction((value) -> close());
         save.setOnAction((e) -> saveTermin());
+        addTeilnehmer.setOnAction((value)->showKontakte());
         // Hier kommt Ihr Code hinein
-        if (termin == null) {
+        if (termin == null && controller!=null) {
             initNewTermin();
         }
-        if (termin != null) {
-            initUpdateTermin(termin);
+        if (termin != null && controller!=null) {
+            initUpdateTermin();
+        }
+        if (termin != null && controller==null) {
+            initShowTermin();
         }
     }
 
@@ -75,22 +77,24 @@ public class TerminViewController implements Initializable {
      * Termins.
      */
     private void initNewTermin() {
-        saveTermin();
+        titel.setText("Termineditor");
+        datum.setValue(LocalDate.now());
+        save.setText("Speichern");
     }
 
     /**
      * Initialisiert die GUI-Elemente des Editors für das Editieren eines
      * Termins.
      */
-    private void initUpdateTermin(Termin termin) {
+    private void initUpdateTermin() {
+        titel.setText("Termine von "+ termin.getBesitzer().getName());
         if (termin != null) {
-            titel.setText(termin.getBesitzer().getName());
+            addTeilnehmer.setDisable(true);
             text.setText(termin.getText());
             datum.setValue(termin.getDatum());
             von.setText(termin.getVon().toString());
             bis.setText(termin.getBis().toString());
         }
-
     }
 
     /**
@@ -98,12 +102,13 @@ public class TerminViewController implements Initializable {
      * Termins.
      */
     private void initShowTermin() {
-        datum.setEditable(false);
+        initUpdateTermin();
+        save.setDisable(true);
+        datum.setDisable(true);
         von.setEditable(false);
         bis.setEditable(false);
         text.setEditable(false);
         teilnehmerliste.setEditable(false);
-        save.setDisable(true);
     }
 
     /**
@@ -121,8 +126,13 @@ public class TerminViewController implements Initializable {
                 String start = von.getText();
                 String end = bis.getText();
                 termin = new Termin(content, day, getTime(start), getTime(end));
+                items.addAll(teilnehmerliste.getItems());
+                for(Kontakt x : items){
+                    if(x!=null) termin.addTeilnehmer(x);
+                }
             }
             else {
+                termin = termin.getCopy();
                 String start = von.getText();
                 String end = bis.getText();
                 termin.setDatum(datum.getValue());
@@ -132,8 +142,9 @@ public class TerminViewController implements Initializable {
             controller.processTermin(termin);
             close();
         } catch (UngueltigerTerminException ex) {
-            ViewHelper.showError(ex.getMessage());
+            error.setText(ex.toString());
         }
+
     }
 
     public void close() {

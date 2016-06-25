@@ -17,7 +17,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 /**
  * FXML Controller class fuer die Terminplaner-Hauptansicht.
@@ -109,8 +108,6 @@ public class PlanerViewController implements Initializable {
 
     public void processTermin(Termin newtermin) throws TerminUeberschneidungException {
         planer.setTermin(newtermin);
-        showTermine();
-
     }
 
     private void saveTermine() {
@@ -140,12 +137,17 @@ public class PlanerViewController implements Initializable {
 
     private void editTermin() {
         Termin termin = terminliste.getSelectionModel().getSelectedItem();
-        if (planer.updateErlaubt(termin)) {
+        if (planer.updateErlaubt(termin) && termin!=null) {
             TerminViewController controller = new TerminViewController(termin, this);
             URL url = controller.getClass().getResource("terminView.fxml");
             ViewHelper.showView(controller, url);
         }
-
+        else if (!planer.updateErlaubt(termin)) {
+            TerminViewController controller = new TerminViewController(termin, null);
+            URL url = controller.getClass().getResource("terminView.fxml");
+            ViewHelper.showView(controller, url);
+        }
+        showTermine();
     }
 
     public LocalDate getSelectedDate() {

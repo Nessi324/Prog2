@@ -8,6 +8,7 @@ import terminplaner.Termin;
  * @author beuth
  */
 public class TerminUeberschneidungException extends UngueltigerTerminException {
+    
     public TerminUeberschneidungException(Termin termin){
         super(termin);
     }

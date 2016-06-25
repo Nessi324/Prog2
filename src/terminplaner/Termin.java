@@ -2,6 +2,7 @@ package terminplaner;
 
 import Exceptions.UngueltigerTerminException;
 import adressbuch.Kontakt;
+import adressbuch.ViewHelper;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
