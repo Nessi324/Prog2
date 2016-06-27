@@ -60,14 +60,13 @@ public class TerminViewController implements Initializable {
         cancel.setOnAction((value) -> close());
         save.setOnAction((e) -> saveTermin());
         addTeilnehmer.setOnAction((value)->showKontakte());
-        // Hier kommt Ihr Code hinein
         if (termin == null && controller!=null) {
             initNewTermin();
         }
-        if (termin != null && controller!=null) {
+        else if (termin != null && controller!=null) {
             initUpdateTermin();
         }
-        if (termin != null && controller==null) {
+        else if (termin != null && controller==null) {
             initShowTermin();
         }
     }
@@ -95,6 +94,7 @@ public class TerminViewController implements Initializable {
             von.setText(termin.getVon().toString());
             bis.setText(termin.getBis().toString());
         }
+        teilnehmerliste.getItems().addAll(termin.getTeilnehmer());
     }
 
     /**
@@ -181,5 +181,4 @@ public class TerminViewController implements Initializable {
     private void showKontakte() {
 
     }
-
 }

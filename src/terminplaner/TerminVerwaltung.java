@@ -43,7 +43,7 @@ public class TerminVerwaltung implements Serializable{
         }
         return liste;
     }
-
+    
     /**
      * Fuegt den angegebenen Termin in die Terminverwaltung ein, wenn keine
      * Terminueberschneidung mit anderen Terminen vorliegt.

@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -88,8 +87,7 @@ public class PlanerViewController implements Initializable {
     private void configureList() {
         terminData = FXCollections.observableArrayList();
         terminliste.setItems(terminData);
-        ObservableList<Termin> clicked = terminliste.getSelectionModel().getSelectedItems();
-        clicked.addListener((ListChangeListener.Change<? extends Termin> listener) -> editTermin());
+        terminliste.setOnMouseClicked((value) -> editTermin());
     }
 
     private void loadTermine() {
@@ -122,7 +120,6 @@ public class PlanerViewController implements Initializable {
                 ViewHelper.showError("Datei konnte nicht gespeichert werden.");
             }
         }
-
     }
 
     private void editKontakte() {
@@ -138,16 +135,19 @@ public class PlanerViewController implements Initializable {
 
     private void editTermin() {
         Termin termin = terminliste.getSelectionModel().getSelectedItem();
-        if (planer.updateErlaubt(termin)) {
-            TerminViewController controller = new TerminViewController(termin, this);
-            URL url = controller.getClass().getResource("terminView.fxml");
-            ViewHelper.showView(controller, url);
+        if (termin != null) {
+            if (planer.updateErlaubt(termin)) {
+                TerminViewController controller = new TerminViewController(termin, this);
+                URL url = controller.getClass().getResource("terminView.fxml");
+                ViewHelper.showView(controller, url);
+            }
+            else if (!planer.updateErlaubt(termin)) {
+                TerminViewController controller = new TerminViewController(termin, null);
+                URL url = controller.getClass().getResource("terminView.fxml");
+                ViewHelper.showView(controller, url);
+            }
         }
-        else if (!planer.updateErlaubt(termin)) {
-            TerminViewController controller = new TerminViewController(termin, null);
-            URL url = controller.getClass().getResource("terminView.fxml");
-            ViewHelper.showView(controller, url);
-        }
+        terminliste.getSelectionModel().clearSelection();
     }
 
     public LocalDate getSelectedDate() {
