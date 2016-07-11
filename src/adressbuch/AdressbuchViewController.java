@@ -44,20 +44,29 @@ public class AdressbuchViewController implements Initializable {
     private String prompter = "Suche mit einem Namen starten....";
     private Adressbuch adressbuch;
     private ObservableList<Kontakt> tableContent;
-    public PlanerViewController controller;
-    
-    public AdressbuchViewController(PlanerViewController aThis) {
-    controller = aThis;
+
+    public AdressbuchViewController(Adressbuch aThis) {
+        adressbuch = aThis;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        nameField.setText(" ");
-        phoneField.setText(" ");
-        adressbuch = new Adressbuch();
         configureTable();
-        inItSearch();
+        inItNewKontakt();
         showKontakte(adressbuch.getAlleKontakte());
+        inItSearch();
+
+    }
+
+    private void showKontakte(Kontakt[] testdaten) {
+        tableContent.clear();
+        tableContent.addAll(testdaten);
+    }
+
+    private void inItNewKontakt() {
+        nameField.setPromptText("Name");
+        phoneField.setPromptText("Telefon");
+        emailField.setPromptText("Email");
         addButton.setOnAction((e) -> {
             try {
                 addKontakt();
@@ -67,13 +76,6 @@ public class AdressbuchViewController implements Initializable {
                 ViewHelper.showError(eve.getMessage());
             }
         });
-    }
-
-    private void showKontakte(Kontakt[] testdaten) {
-        tableContent.clear();
-        for (int i = 0; i < testdaten.length; i++) {
-            tableContent.add(testdaten[i]);
-        }
     }
 
     private void addKontakt() throws DoppelterSchluesselException {
@@ -89,6 +91,9 @@ public class AdressbuchViewController implements Initializable {
 
     private void configureTable() {
         tableContent = FXCollections.observableArrayList();
+        Kontakt[] kontakte = adressbuch.getAlleKontakte();
+        tableContent.addAll(kontakte);
+        tableView.setItems(tableContent);
         tableView.setEditable(true);
         name.setCellValueFactory(new PropertyValueFactory<>("name"));
         phone.setCellValueFactory(new PropertyValueFactory<>("telefon"));
@@ -99,9 +104,6 @@ public class AdressbuchViewController implements Initializable {
         phone.setOnEditCommit((e) -> updatePhone(e));
         email.setCellFactory(TextFieldTableCell.<Kontakt>forTableColumn());
         email.setOnEditCommit((e) -> updateEmail(e));
-        Kontakt[] kontakte = adressbuch.getAlleKontakte();
-        tableContent.addAll(kontakte);
-        tableView.setItems(tableContent);
     }
 
     private void filterList() {
@@ -112,13 +114,15 @@ public class AdressbuchViewController implements Initializable {
 
     private void updateName(TableColumn.CellEditEvent<Kontakt, String> e) {
         try {
+            String alt = e.getOldValue();
+            String neu = e.getNewValue();
+            if (alt.equals(neu)) {
+                return;
+            }
             Kontakt altKontakt = e.getRowValue();
-            Kontakt ersatz = new Kontakt(altKontakt.getName(), altKontakt.getTelefon(), altKontakt.getEmail());
+            Kontakt ersatz = new Kontakt(neu, altKontakt.getTelefon(), altKontakt.getEmail());
             if (altKontakt != ersatz) {
-                String neu = e.getNewValue();
-                ersatz.setName(neu);
                 adressbuch.updateKontakt(getKey(altKontakt), ersatz);
-                configureTable();
             }
         } catch (UngueltigerSchluesselException ex) {
             ViewHelper.showError(ex.toString());
@@ -132,21 +136,26 @@ public class AdressbuchViewController implements Initializable {
         if (alt.equals(neu)) {
             return;
         }
-        int index = e.getTablePosition().getRow();
-        Kontakt p = tableView.getItems().get(index);
-        p.setEmail(neu);
+        Kontakt altKontakt = e.getRowValue();
+        altKontakt.setEmail(neu);
         showKontakte(adressbuch.getAlleKontakte());
     }
 
     private void updatePhone(TableColumn.CellEditEvent<Kontakt, String> e) {
-        String alt = e.getOldValue();
-        String neu = e.getNewValue();
-        if (alt.equals(neu)) {
-            return;
+        try {
+            String alt = e.getOldValue();
+            String neu = e.getNewValue();
+            if (alt.equals(neu)) {
+                return;
+            }
+            Kontakt altKontakt = e.getRowValue();
+            Kontakt ersatz = new Kontakt(altKontakt.getName(), neu, altKontakt.getEmail());
+            if (altKontakt != ersatz) {
+                adressbuch.updateKontakt(getKey(altKontakt), ersatz);
+            }
+        } catch (UngueltigerSchluesselException ex) {
+            ViewHelper.showError(ex.toString());
         }
-        int index = e.getTablePosition().getRow();
-        Kontakt p = tableView.getItems().get(index);
-        p.setTelefon(neu);
         showKontakte(adressbuch.getAlleKontakte());
     }
 

@@ -104,10 +104,11 @@ public class TerminViewController implements Initializable {
     private void initShowTermin() {
         initUpdateTermin();
         save.setDisable(true);
-        datum.setDisable(true);
+        datum.setDisable(false);
         von.setEditable(false);
         bis.setEditable(false);
         text.setEditable(false);
+        addTeilnehmer.setDisable(true);
         teilnehmerliste.setEditable(false);
     }
 

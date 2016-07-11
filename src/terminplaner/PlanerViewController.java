@@ -48,23 +48,22 @@ public class PlanerViewController implements Initializable {
         } catch (UngueltigerSchluesselException ex) {
             System.out.println(ex.toString());
         }
-        date.setOnAction((e) -> showTermine());
         date.setValue(LocalDate.now());
+        date.setOnAction((e) -> showTermine());
         addButton.setOnAction((e) -> addTermin());
         configureList();
-        configureMenue();
+        configureMenu();
         showTermine();
 
     }
 
     private void showTermine() {
         if (getSelectedDate() != null) {
-            terminliste.getItems().clear();
+            terminData.clear();
             LocalDate datum = getSelectedDate();
             List<Termin> liste = planer.getTermineTag(datum);
             if (liste != null && liste.size() > 0) {
                 terminData.addAll(liste);
-                terminliste.setItems(terminData);
             }
         }
     }
@@ -75,7 +74,7 @@ public class PlanerViewController implements Initializable {
         ViewHelper.showView(controller, url);
     }
 
-    private void configureMenue() {
+    private void configureMenu() {
         menuBar.getMenus().get(0).getItems().add(new MenuItem("Laden"));
         menuBar.getMenus().get(0).getItems().get(0).setOnAction((value) -> loadTermine());
         menuBar.getMenus().get(0).getItems().add(new MenuItem("Speichern"));
@@ -93,14 +92,13 @@ public class PlanerViewController implements Initializable {
     private void loadTermine() {
         try {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Lade gespeicherte Termine");
             File file = fileChooser.showOpenDialog(null);
             if (file != null) {
                 planer.load(file);
             }
             showTermine();
         } catch (Exception ex) {
-            ViewHelper.showError("Datei konnte nicht gespeichert werden.");
+            ViewHelper.showError("Datei konnte nicht geladen werden.");
         }
     }
 
@@ -124,12 +122,11 @@ public class PlanerViewController implements Initializable {
 
     private void editKontakte() {
         URL url = adressen.getClass().getResource("adressbuchView.fxml");
-        AdressbuchViewController controller = new AdressbuchViewController(this);
+        AdressbuchViewController controller = new AdressbuchViewController(adressen);
         ViewHelper.showView(controller, url);
     }
 
     public Adressbuch getAdressbuch() {
-        adressen = new Adressbuch();
         return adressen;
     }
 
@@ -141,13 +138,12 @@ public class PlanerViewController implements Initializable {
                 URL url = controller.getClass().getResource("terminView.fxml");
                 ViewHelper.showView(controller, url);
             }
-            else if (!planer.updateErlaubt(termin)) {
+            else {
                 TerminViewController controller = new TerminViewController(termin, null);
                 URL url = controller.getClass().getResource("terminView.fxml");
                 ViewHelper.showView(controller, url);
             }
         }
-        terminliste.getSelectionModel().clearSelection();
     }
 
     public LocalDate getSelectedDate() {

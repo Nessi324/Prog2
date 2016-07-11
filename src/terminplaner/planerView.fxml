@@ -41,7 +41,7 @@
          </padding>
       </HBox>
       <ListView fx:id="terminliste" layoutX="11.0" layoutY="146.0" prefHeight="349.0" prefWidth="399.0" />
-      <Button fx:id="addButton" layoutX="353.0" layoutY="498.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="53.0" text="Neu">
+      <Button fx:id="addButton" layoutX="353.0" layoutY="508.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="53.0" text="Neu">
          <font>
             <Font size="16.0" />
          </font>
